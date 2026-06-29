@@ -163,15 +163,31 @@ async function fetchFromFallback() {
 }
 
 async function init() {
+  let microcmsPosts = [];
+  let fallbackPosts = [];
+
   try {
-    POEMS = await fetchFromMicroCMS();
+    microcmsPosts = await fetchFromMicroCMS();
   } catch {
-    try {
-      POEMS = await fetchFromFallback();
-    } catch {
-      POEMS = [];
-    }
+    microcmsPosts = [];
   }
+
+  try {
+    fallbackPosts = await fetchFromFallback();
+  } catch {
+    fallbackPosts = [];
+  }
+
+  if (microcmsPosts.length > 0 && fallbackPosts.length > 0) {
+    const titles = new Set(microcmsPosts.map((p) => p.title));
+    POEMS = [
+      ...microcmsPosts,
+      ...fallbackPosts.filter((p) => !titles.has(p.title)),
+    ];
+  } else {
+    POEMS = microcmsPosts.length > 0 ? microcmsPosts : fallbackPosts;
+  }
+
   renderPoems();
 }
 
