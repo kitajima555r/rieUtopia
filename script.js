@@ -13,6 +13,26 @@ const modalThumb = document.getElementById("modal-thumb");
 const modalImage = document.getElementById("modal-image");
 const modalClose = document.querySelector(".modal-close");
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  return dateStr.slice(0, 10);
+}
+
+function normalizeImage(item) {
+  if (typeof item.image === "string" && item.image) return item.image;
+  if (item.eyecatch?.url) return item.eyecatch.url;
+  if (typeof item.eyecatch === "string") return item.eyecatch;
+  return "";
+}
+
 function previewText(lines) {
   return lines.filter(Boolean).slice(0, 4).join("\n");
 }
@@ -24,15 +44,15 @@ function normalizeCategory(category) {
 
 function normalizePost(item) {
   const category = normalizeCategory(item.category);
-  const lines = (item.body || "").split("\n");
+  const lines = item.lines || (item.body || "").split("\n");
 
   return {
     id: String(item.id),
     title: item.title,
-    date: item.date,
+    date: formatDate(item.date),
     category,
     categoryLabel: CATEGORY_LABELS[category] || category,
-    image: item.eyecatch?.url || "",
+    image: normalizeImage(item),
     lines,
   };
 }
@@ -43,40 +63,51 @@ function renderPoems(filter = "all") {
   const filtered =
     filter === "all" ? POEMS : POEMS.filter((p) => p.category === filter);
 
+  poemGrid.innerHTML = "";
+
   if (filtered.length === 0) {
     poemGrid.innerHTML =
       '<p class="poem-empty">まだ投稿がありません。microCMS で詩を追加してください。</p>';
     return;
   }
 
-  poemGrid.innerHTML = filtered
-    .map(
-      (poem) => `
-    <button class="poem-card glass-panel" data-id="${poem.id}" aria-label="${poem.title}を読む">
-      <div class="poem-card-thumb">
-        <img src="${poem.image}" alt="" loading="lazy" width="800" height="500">
-      </div>
-      <div class="poem-card-body">
-        <div class="poem-card-meta">
-          <time datetime="${poem.date}">${poem.date}</time>
-          <span class="poem-card-tag">${poem.categoryLabel}</span>
-        </div>
-        <h3>${poem.title}</h3>
-        <p class="poem-card-preview">${previewText(poem.lines)}</p>
-        <span class="poem-card-more">続きを読む →</span>
-      </div>
-    </button>
-  `
-    )
-    .join("");
+  filtered.forEach((poem) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "poem-card glass-panel";
+    card.setAttribute("aria-label", `${poem.title}を読む`);
 
-  poemGrid.querySelectorAll(".poem-card").forEach((card) => {
-    card.addEventListener("click", () => openModal(card.dataset.id));
+    const thumb = document.createElement("div");
+    thumb.className = "poem-card-thumb";
+    if (poem.image) {
+      const img = document.createElement("img");
+      img.src = poem.image;
+      img.alt = "";
+      img.loading = "lazy";
+      img.width = 800;
+      img.height = 500;
+      thumb.appendChild(img);
+    }
+
+    const body = document.createElement("div");
+    body.className = "poem-card-body";
+    body.innerHTML = `
+      <div class="poem-card-meta">
+        <time datetime="${escapeHtml(poem.date)}">${escapeHtml(poem.date)}</time>
+        <span class="poem-card-tag">${escapeHtml(poem.categoryLabel)}</span>
+      </div>
+      <h3>${escapeHtml(poem.title)}</h3>
+      <p class="poem-card-preview">${escapeHtml(previewText(poem.lines))}</p>
+      <span class="poem-card-more">続きを読む →</span>
+    `;
+
+    card.append(thumb, body);
+    card.addEventListener("click", () => openModal(poem));
+    poemGrid.appendChild(card);
   });
 }
 
-function openModal(id) {
-  const poem = POEMS.find((p) => String(p.id) === String(id));
+function openModal(poem) {
   if (!poem || !modal) return;
 
   modalTitle.textContent = poem.title;
@@ -93,7 +124,11 @@ function openModal(id) {
     modalImage.removeAttribute("src");
   }
 
-  modal.showModal();
+  if (typeof modal.showModal === "function") {
+    if (!modal.open) modal.showModal();
+  } else {
+    modal.setAttribute("open", "");
+  }
 }
 
 filterBtns.forEach((btn) => {
@@ -156,11 +191,12 @@ async function fetchFromMicroCMS() {
 async function fetchFromFallback() {
   const res = await fetch("posts.json");
   if (!res.ok) throw new Error("posts.json not found");
-  return (await res.json()).map((post) => ({
-    ...post,
-    id: String(post.id),
-    categoryLabel: post.categoryLabel || CATEGORY_LABELS[post.category] || post.category,
-  }));
+  return (await res.json()).map((post) =>
+    normalizePost({
+      ...post,
+      categoryLabel: post.categoryLabel || CATEGORY_LABELS[post.category] || post.category,
+    })
+  );
 }
 
 async function init() {
