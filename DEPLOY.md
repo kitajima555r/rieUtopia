@@ -1,62 +1,59 @@
 # デプロイ手順 — GitHub Pages + microCMS
 
-## 1. microCMS の準備
+## すでに完了していること
 
-[MICROCMS.md](MICROCMS.md) に従って API を作成し、投稿データを登録してください。
+- コードは https://github.com/kitajima555r/rieUtopia に push 済み
+- `main` に push すると GitHub Actions が `gh-pages` ブランチへ自動デプロイ
+- microCMS 未設定でも `posts.json` の詩が表示される
 
-## 2. GitHub リポジトリの設定
+## あなたがやること（2分）
 
-リポジトリ: https://github.com/kitajima555r/rieUtopia
+### 1. GitHub Pages を有効化
 
-### Secrets の登録
+1. https://github.com/kitajima555r/rieUtopia/settings/pages を開く
+2. **Build and deployment** → Source: **Deploy from a branch**
+3. Branch: **gh-pages** / **/ (root)** を選んで Save
 
-Settings → Secrets and variables → Actions → New repository secret
+数分後、サイトが公開されます:
+
+**https://kitajima555r.github.io/rieUtopia/**
+
+### 2. microCMS を使う場合（任意・後から OK）
+
+[MICROCMS.md](MICROCMS.md) の手順で API を作成したあと:
+
+```bash
+# 書き込み用 API キーで既存データを一括登録
+MICROCMS_SERVICE_DOMAIN=あなたのサービスID \
+MICROCMS_API_KEY=書き込み用キー \
+node scripts/migrate-to-microcms.mjs
+```
+
+GitHub → Settings → Secrets → Actions に登録:
 
 | Name | Value |
 |---|---|
-| `MICROCMS_SERVICE_DOMAIN` | サービス ID（例: `rie-utopia`） |
+| `MICROCMS_SERVICE_DOMAIN` | サービス ID |
 | `MICROCMS_API_KEY` | 読み取り専用 API キー |
 
-### GitHub Pages の有効化
+登録後、`main` に空コミットを push すると microCMS 連携が有効になります。
 
-Settings → Pages → Build and deployment
+### 3. 独自ドメイン（rie-utopia.com）
 
-- **Source**: GitHub Actions
+Settings → Pages → Custom domain に `rie-utopia.com` を入力し、DNS を GitHub の案内に従って設定。
 
-`main` ブランチに push すると `.github/workflows/deploy.yml` が自動実行され、サイトが公開されます。
-
-## 3. 独自ドメイン（rie-utopia.com）の設定
-
-Settings → Pages → Custom domain に `rie-utopia.com` を入力します。
-
-DNS（さくらインターネット等）で以下を設定：
-
-| タイプ | ホスト | 値 |
-|---|---|---|
-| CNAME | `www` | `kitajima555r.github.io` |
-| A | `@` | GitHub Pages の IP（GitHub の案内に従う） |
-
-## 4. 更新の流れ
-
-1. microCMS の管理画面で詩・日記を編集・公開
-2. サイトは API から最新データを取得するため、**コードの再デプロイは不要**
-
-画像を差し替える場合は microCMS のメディア欄、または `public/images/` に追加して push してください。
-
-## ローカルでの確認
+## ローカル確認
 
 ```bash
-cp public/config.example.js public/config.js
-# config.js を編集
-
-cd public && python3 -m http.server 8080
+./scripts/preview.sh
 ```
 
-## 旧構成からの移行メモ
+http://localhost:8080
 
-| 以前 | 現在 |
+## 更新の流れ
+
+| やりたいこと | 方法 |
 |---|---|
-| MySQL / serve.py | 廃止 |
-| admin/ 投稿管理 | microCMS 管理画面 |
-| さくらサーバー FTP | GitHub Pages |
-| posts.json 直接編集 | microCMS API（posts.json はローカル用フォールバック） |
+| 詩を追加・編集（microCMS 利用時） | microCMS 管理画面 |
+| 詩を追加・編集（今すぐ） | `public/posts.json` を編集して push |
+| デザイン変更 | `public/` 内のファイルを編集して push |
