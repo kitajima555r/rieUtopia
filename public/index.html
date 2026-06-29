@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Rie-Utopia — 青空の下で綴る詩と日記。双極性障害とともに生きる、rie-Utopiaの言葉。">
+  <title>Rie-Utopia | 青空の詩</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;600;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <div class="sky-photo"></div>
+    <div class="sky-overlay"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <header class="header glass" id="top">
+    <nav class="nav">
+      <a href="#top" class="logo">
+        <img src="images/rie-utopia-logo.png" alt="Rie-Utopia" class="logo-img" width="1024" height="271">
+      </a>
+      <button class="nav-toggle" aria-label="メニューを開く" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="#about">Rie-Utopia</a></li>
+        <li><a href="#poems">詩</a></li>
+        <li><a href="#instagram">Instagram</a></li>
+        <li><a href="#bipolar">双極性障害</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-panel glass-panel">
+          <p class="hero-eyebrow">#いまそら #青空 #詩</p>
+          <h1>空の色を<br>言葉にする</h1>
+          <p class="hero-lead">
+            幼少のころから詩を書くのが趣味。<br>
+            青い空の下で、生きることの言葉を綴っています。
+          </p>
+          <div class="hero-actions">
+            <a href="#poems" class="btn btn-primary">詩を読む</a>
+            <a href="https://twitter.com/rieUtopia" class="btn btn-outline" target="_blank" rel="noopener noreferrer">X @rieUtopia</a>
+          </div>
+        </div>
+        <div class="hero-visual glass-panel" aria-hidden="true">
+          <div class="sky-window">
+            <img src="images/sky-bg.png" alt="" class="sky-window-img" width="768" height="1024">
+          </div>
+          <p class="hero-quote">「ここまでよくがんばったね。」</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-image glass-panel">
+            <img src="images/about-profile.jpg" alt="Rie-Utopia" width="800" height="600" loading="lazy">
+          </div>
+          <div class="about-text glass-panel">
+            <h2>Rie-Utopia</h2>
+            <p class="about-kicker">RIE-UTOPIA</p>
+            <p class="about-tag">双極性障害２型</p>
+            <p>
+              幼少のころから詩を書くのが趣味。<br>
+              元統合失調症。寛解して結婚、出産。<br>
+              現在は双極性障害Ⅱ型。
+            </p>
+            <ul class="about-links">
+              <li>
+                <a href="https://www.instagram.com/rieutopia/" target="_blank" rel="noopener noreferrer">
+                  Instagram @rieutopia
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/rieUtopia" target="_blank" rel="noopener noreferrer">
+                  X @rieUtopia
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-poems" id="poems">
+      <div class="container">
+        <header class="section-header glass">
+          <h2>詩と言葉</h2>
+          <p>青空のように、静かに、でも確かに届く言葉たち。</p>
+        </header>
+
+        <div class="filter-bar glass" role="tablist" aria-label="カテゴリ">
+          <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">すべて</button>
+          <button class="filter-btn" data-filter="poem" role="tab">詩</button>
+          <button class="filter-btn" data-filter="diary" role="tab">日記</button>
+          <button class="filter-btn" data-filter="life" role="tab">生きる</button>
+        </div>
+
+        <div class="poem-grid" id="poem-grid"></div>
+      </div>
+    </section>
+
+    <section class="section section-instagram" id="instagram">
+      <div class="container">
+        <header class="section-header glass">
+          <h2>Instagram</h2>
+          <p>青空と言葉の記録を、@rieutopia でも。</p>
+        </header>
+
+        <div class="instagram-layout">
+          <div class="instagram-embed glass-panel">
+            <iframe
+              src="https://www.instagram.com/rieutopia/embed"
+              title="Rie-Utopia (@rieutopia) のInstagram"
+              loading="lazy"
+              allowtransparency="true"
+              allowfullscreen
+              scrolling="no"
+            ></iframe>
+          </div>
+
+          <div class="instagram-side glass-panel">
+            <p class="instagram-handle">@rieutopia</p>
+            <p>
+              詩や日々の空、育児のこと。<br>
+              Instagramでも言葉を綴っています。
+            </p>
+            <a
+              href="https://www.instagram.com/rieutopia/?hl=ja"
+              class="btn btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Instagramでフォロー
+            </a>
+
+            <blockquote
+              class="instagram-media"
+              data-instgrm-permalink="https://www.instagram.com/p/DDLfP2gzC6j/?utm_source=ig_embed&amp;utm_campaign=loading"
+              data-instgrm-version="14"
+            ></blockquote>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bipolar">
+      <div class="container">
+        <div class="bipolar-box glass-panel">
+          <h2>双極性障害</h2>
+          <p>
+            このサイトでは、双極性障害とともに生きる日々の記録も綴っています。
+            鬱期も躁期も、すべてが自分の言葉として残っていく場所。
+          </p>
+          <p>
+            同じ空を見上げながら、少しずつ前に進んでいく。
+            その途中で書いた詩や日記が、誰かの「今日」を少しやわらげられたら嬉しいです。
+          </p>
+          <div class="tag-cloud">
+            <span class="tag">#詩</span>
+            <span class="tag">#生きる</span>
+            <span class="tag">#青空</span>
+            <span class="tag">#いまそら</span>
+            <span class="tag">#自己肯定感</span>
+            <span class="tag">#双極性障害</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer glass">
+    <div class="container footer-inner">
+      <p class="footer-logo">
+        <img src="images/rie-utopia-logo.png" alt="Rie-Utopia" class="footer-logo-img" width="1024" height="271">
+      </p>
+      <p class="footer-copy">&copy; RIE-Utopia</p>
+    </div>
+  </footer>
+
+  <dialog class="poem-modal" id="poem-modal">
+    <button class="modal-close" aria-label="閉じる">&times;</button>
+    <article class="modal-content glass-panel">
+      <div class="modal-thumb" id="modal-thumb" hidden>
+        <img id="modal-image" src="" alt="">
+      </div>
+      <header class="modal-header">
+        <time id="modal-date"></time>
+        <h3 id="modal-title"></h3>
+        <span class="modal-category" id="modal-category"></span>
+      </header>
+      <div class="modal-body" id="modal-body"></div>
+    </article>
+  </dialog>
+
+  <script async src="https://www.instagram.com/embed.js"></script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
