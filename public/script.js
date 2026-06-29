@@ -27,7 +27,7 @@ function normalizePost(item) {
   const lines = (item.body || "").split("\n");
 
   return {
-    id: item.id,
+    id: String(item.id),
     title: item.title,
     date: item.date,
     category,
@@ -76,7 +76,7 @@ function renderPoems(filter = "all") {
 }
 
 function openModal(id) {
-  const poem = POEMS.find((p) => p.id === id);
+  const poem = POEMS.find((p) => String(p.id) === String(id));
   if (!poem || !modal) return;
 
   modalTitle.textContent = poem.title;
@@ -158,6 +158,7 @@ async function fetchFromFallback() {
   if (!res.ok) throw new Error("posts.json not found");
   return (await res.json()).map((post) => ({
     ...post,
+    id: String(post.id),
     categoryLabel: post.categoryLabel || CATEGORY_LABELS[post.category] || post.category,
   }));
 }
