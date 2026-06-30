@@ -24,15 +24,47 @@
 
 ## 3. API キーの発行
 
-サービス設定 → API キー → **読み取り専用** キーを発行
+サービス設定 → API キー で **2 つ** 発行します。
 
-このキーを `public/config.js` または GitHub Secrets の `MICROCMS_API_KEY` に設定します。
+| 種類 | 用途 | 設定先 |
+|---|---|---|
+| **読み取り** | サイト表示 | `MICROCMS_READ_API_KEY` / GitHub Secret `MICROCMS_API_KEY` |
+| **書き込み** | データ移行・管理画面以外からの投稿 | `.env` の `MICROCMS_WRITE_API_KEY` |
 
-## 4. 既存データの移行
+読み取り専用キーでは投稿の一括登録（`setup-microcms.py`）はできません。
 
-`public/posts.json` の各投稿を microCMS に手動登録するか、管理画面からコピーしてください。
+## 4. 一括セットアップ（推奨）
 
-### 登録例（「人生の途中で。」）
+`.env` を用意してから:
+
+```bash
+cp .env.example .env
+# .env に SERVICE_DOMAIN / WRITE / READ を設定
+
+python3 scripts/setup-microcms.py
+```
+
+- 未登録の詩だけ `posts.json` から microCMS へ移行
+- `public/config.js` を自動生成
+
+## 5. 本番反映（GitHub Secrets）
+
+GitHub → Settings → Secrets → Actions に登録:
+
+| Name | Value |
+|---|---|
+| `MICROCMS_SERVICE_DOMAIN` | サービス ID（例: `rie-utopia`） |
+| `MICROCMS_API_KEY` | **読み取り専用** API キー |
+
+登録後、`main` に push すると本番サイトが microCMS 連携になります。
+
+## 6. スマホから詩を追加
+
+[microCMS 管理画面](https://rie-utopia.microcms.io/) にスマホブラウザでログイン → **posts** → 新規作成。
+
+保存すれば **数秒でサイトに反映** されます（push 不要）。
+
+### 投稿の入力例
 
 | フィールド | 値 |
 |---|---|
@@ -49,20 +81,14 @@
 ...
 ```
 
-## 5. ローカル設定
+## 7. ローカル設定
 
 ```bash
 cp public/config.example.js public/config.js
+# または python3 scripts/setup-microcms.py で自動生成
 ```
 
-```javascript
-window.MICROCMS_CONFIG = {
-  serviceDomain: "rie-utopia",
-  apiKey: "xxxxxxxxxxxxxxxx",
-};
-```
-
-## 6. 動作確認
+## 8. 動作確認
 
 ブラウザの開発者ツール → Network で以下が 200 になることを確認：
 

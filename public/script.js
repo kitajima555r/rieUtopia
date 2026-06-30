@@ -1,6 +1,7 @@
 let POEMS = [];
 
 const CATEGORY_LABELS = { poem: "詩", diary: "日記", life: "生きる" };
+const CATEGORY_ALIASES = { 詩: "poem", 日記: "diary", 生きる: "life" };
 
 const poemGrid = document.getElementById("poem-grid");
 const featuredGrid = document.getElementById("featured-grid");
@@ -40,8 +41,9 @@ function previewText(lines) {
 }
 
 function normalizeCategory(category) {
-  if (Array.isArray(category)) return category[0] || "poem";
-  return category || "poem";
+  const raw = Array.isArray(category) ? category[0] : category;
+  if (!raw) return "poem";
+  return CATEGORY_ALIASES[raw] || raw;
 }
 
 function normalizePost(item) {
