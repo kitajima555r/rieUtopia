@@ -3,6 +3,8 @@ let POEMS = [];
 const CATEGORY_LABELS = { poem: "詩", diary: "日記", life: "生きる" };
 
 const poemGrid = document.getElementById("poem-grid");
+const featuredGrid = document.getElementById("featured-grid");
+const portfolioStats = document.getElementById("portfolio-stats");
 const filterBtns = document.querySelectorAll(".filter-btn");
 const modal = document.getElementById("poem-modal");
 const modalTitle = document.getElementById("modal-title");
@@ -57,7 +59,71 @@ function normalizePost(item) {
   };
 }
 
-function renderPoems(filter = "all") {
+function createPoemCard(poem, variant = "default") {
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = variant === "featured" ? "featured-card glass-panel" : "poem-card glass-panel";
+  card.setAttribute("aria-label", `${poem.title}を読む`);
+
+  const thumb = document.createElement("div");
+  thumb.className = variant === "featured" ? "featured-card-thumb" : "poem-card-thumb";
+  if (poem.image) {
+    const img = document.createElement("img");
+    img.src = poem.image;
+    img.alt = "";
+    img.loading = "lazy";
+    img.width = 800;
+    img.height = 500;
+    thumb.appendChild(img);
+  }
+
+  const body = document.createElement("div");
+  body.className = variant === "featured" ? "featured-card-body" : "poem-card-body";
+  body.innerHTML = `
+    <div class="poem-card-meta">
+      <time datetime="${escapeHtml(poem.date)}">${escapeHtml(poem.date)}</time>
+      <span class="poem-card-tag">${escapeHtml(poem.categoryLabel)}</span>
+    </div>
+    <h3>${escapeHtml(poem.title)}</h3>
+    <p class="poem-card-preview">${escapeHtml(previewText(poem.lines))}</p>
+    <span class="poem-card-more">続きを読む →</span>
+  `;
+
+  card.append(thumb, body);
+  card.addEventListener("click", () => openModal(poem));
+  return card;
+}
+
+function renderFeaturedPoems() {
+  if (!featuredGrid) return;
+
+  const poems = POEMS.filter((p) => p.category === "poem").slice(0, 3);
+  featuredGrid.innerHTML = "";
+
+  if (!poems.length) {
+    featuredGrid.innerHTML = '<p class="poem-empty">代表作を読み込み中です。</p>';
+    return;
+  }
+
+  poems.forEach((poem) => {
+    featuredGrid.appendChild(createPoemCard(poem, "featured"));
+  });
+}
+
+function renderPortfolioStats() {
+  if (!portfolioStats) return;
+
+  const poemCount = POEMS.filter((p) => p.category === "poem").length;
+  const totalCount = POEMS.length;
+
+  portfolioStats.innerHTML = `
+    <span class="stat-item"><strong>${poemCount}</strong> 編の詩</span>
+    <span class="stat-divider" aria-hidden="true">·</span>
+    <span class="stat-item"><strong>${totalCount}</strong> 作品</span>
+  `;
+}
+
+function renderPoems(filter = "poem") {
   if (!poemGrid) return;
 
   const filtered =
@@ -72,38 +138,7 @@ function renderPoems(filter = "all") {
   }
 
   filtered.forEach((poem) => {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "poem-card glass-panel";
-    card.setAttribute("aria-label", `${poem.title}を読む`);
-
-    const thumb = document.createElement("div");
-    thumb.className = "poem-card-thumb";
-    if (poem.image) {
-      const img = document.createElement("img");
-      img.src = poem.image;
-      img.alt = "";
-      img.loading = "lazy";
-      img.width = 800;
-      img.height = 500;
-      thumb.appendChild(img);
-    }
-
-    const body = document.createElement("div");
-    body.className = "poem-card-body";
-    body.innerHTML = `
-      <div class="poem-card-meta">
-        <time datetime="${escapeHtml(poem.date)}">${escapeHtml(poem.date)}</time>
-        <span class="poem-card-tag">${escapeHtml(poem.categoryLabel)}</span>
-      </div>
-      <h3>${escapeHtml(poem.title)}</h3>
-      <p class="poem-card-preview">${escapeHtml(previewText(poem.lines))}</p>
-      <span class="poem-card-more">続きを読む →</span>
-    `;
-
-    card.append(thumb, body);
-    card.addEventListener("click", () => openModal(poem));
-    poemGrid.appendChild(card);
+    poemGrid.appendChild(createPoemCard(poem));
   });
 }
 
@@ -225,7 +260,9 @@ async function init() {
     POEMS = microcmsPosts.length > 0 ? microcmsPosts : fallbackPosts;
   }
 
-  renderPoems();
+  renderPortfolioStats();
+  renderFeaturedPoems();
+  renderPoems("poem");
 }
 
 init();
