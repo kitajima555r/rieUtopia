@@ -1,6 +1,7 @@
 let POEMS = [];
 
 const CATEGORY_LABELS = { poem: "詩", diary: "日記", life: "生きる" };
+const CATEGORY_ALIASES = { 詩: "poem", 日記: "diary", 生きる: "life" };
 
 const poemGrid = document.getElementById("poem-grid");
 const featuredGrid = document.getElementById("featured-grid");
@@ -40,8 +41,9 @@ function previewText(lines) {
 }
 
 function normalizeCategory(category) {
-  if (Array.isArray(category)) return category[0] || "poem";
-  return category || "poem";
+  const raw = Array.isArray(category) ? category[0] : category;
+  if (!raw) return "poem";
+  return CATEGORY_ALIASES[raw] || raw;
 }
 
 function normalizePost(item) {
@@ -60,8 +62,8 @@ function normalizePost(item) {
 }
 
 function createPoemCard(poem, variant = "default") {
-  const card = document.createElement("button");
-  card.type = "button";
+  const card = document.createElement("a");
+  card.href = `posts/${encodeURIComponent(poem.id)}.html`;
   card.className = variant === "featured" ? "featured-card glass-panel" : "poem-card glass-panel";
   card.setAttribute("aria-label", `${poem.title}を読む`);
 
@@ -90,7 +92,10 @@ function createPoemCard(poem, variant = "default") {
   `;
 
   card.append(thumb, body);
-  card.addEventListener("click", () => openModal(poem));
+  card.addEventListener("click", (e) => {
+    e.preventDefault();
+    openModal(poem);
+  });
   return card;
 }
 
@@ -123,17 +128,29 @@ function renderPortfolioStats() {
   `;
 }
 
-function renderPoems(filter = "poem") {
+let currentFilter = "poem";
+let currentQuery = "";
+
+function matchesQuery(poem, query) {
+  if (!query) return true;
+  const haystack = `${poem.title}\n${poem.lines.join("\n")}`.toLowerCase();
+  return haystack.includes(query);
+}
+
+function renderPoems() {
   if (!poemGrid) return;
 
-  const filtered =
-    filter === "all" ? POEMS : POEMS.filter((p) => p.category === filter);
+  const byCategory =
+    currentFilter === "all" ? POEMS : POEMS.filter((p) => p.category === currentFilter);
+  const query = currentQuery.trim().toLowerCase();
+  const filtered = byCategory.filter((p) => matchesQuery(p, query));
 
   poemGrid.innerHTML = "";
 
   if (filtered.length === 0) {
-    poemGrid.innerHTML =
-      '<p class="poem-empty">まだ投稿がありません。microCMS で詩を追加してください。</p>';
+    poemGrid.innerHTML = query
+      ? '<p class="poem-empty">一致する詩が見つかりませんでした。</p>'
+      : '<p class="poem-empty">まだ投稿がありません。microCMS で詩を追加してください。</p>';
     return;
   }
 
@@ -166,6 +183,8 @@ function openModal(poem) {
   }
 }
 
+const poemSearch = document.getElementById("poem-search");
+
 filterBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     filterBtns.forEach((b) => {
@@ -174,9 +193,17 @@ filterBtns.forEach((btn) => {
     });
     btn.classList.add("active");
     btn.setAttribute("aria-selected", "true");
-    renderPoems(btn.dataset.filter);
+    currentFilter = btn.dataset.filter;
+    renderPoems();
   });
 });
+
+if (poemSearch) {
+  poemSearch.addEventListener("input", () => {
+    currentQuery = poemSearch.value;
+    renderPoems();
+  });
+}
 
 if (modal && modalClose) {
   modalClose.addEventListener("click", () => modal.close());
@@ -213,14 +240,25 @@ async function fetchFromMicroCMS() {
     throw new Error("microCMS config missing");
   }
 
-  const endpoint = `https://${config.serviceDomain}.microcms.io/api/v1/posts?orders=-date&limit=100`;
-  const res = await fetch(endpoint, {
-    headers: { "X-MICROCMS-API-KEY": config.apiKey },
-  });
+  const limit = 100;
+  let offset = 0;
+  let contents = [];
 
-  if (!res.ok) throw new Error("microCMS fetch failed");
-  const data = await res.json();
-  return (data.contents || []).map(normalizePost);
+  while (true) {
+    const endpoint = `https://${config.serviceDomain}.microcms.io/api/v1/posts?orders=-date&limit=${limit}&offset=${offset}`;
+    const res = await fetch(endpoint, {
+      headers: { "X-MICROCMS-API-KEY": config.apiKey },
+    });
+
+    if (!res.ok) throw new Error("microCMS fetch failed");
+    const data = await res.json();
+    const page = data.contents || [];
+    contents = contents.concat(page);
+    offset += limit;
+    if (offset >= (data.totalCount || 0) || page.length < limit) break;
+  }
+
+  return contents.map(normalizePost);
 }
 
 async function fetchFromFallback() {
@@ -262,7 +300,7 @@ async function init() {
 
   renderPortfolioStats();
   renderFeaturedPoems();
-  renderPoems("poem");
+  renderPoems();
 }
 
 init();
