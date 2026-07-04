@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-ロゴ(public/images/rie-utopia-logo.png)の「R」の字を切り出して
-favicon一式を生成する。
+ロゴ(public/images/rie-utopia-logo.png)の「R」の字を、
+青空グラデーション背景の上に白抜きで乗せたfaviconを生成する。
 
 使い方: python3 scripts/make_favicon.py
 """
 
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 IMAGES = ROOT / "public" / "images"
@@ -16,22 +16,49 @@ LOGO = IMAGES / "rie-utopia-logo.png"
 # ロゴ画像の左端、"R" の字だけを含む範囲（実測で調整済み）
 CROP_BOX = (0, 0, 195, 271)
 
+MASTER_SIZE = 512
+SKY_TOP = (77, 163, 255)  # 明るい空色
+SKY_BOTTOM = (0, 87, 217)  # 深い青
 
-def square_canvas(im):
-    size = max(im.size)
-    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    offset = ((size - im.width) // 2, (size - im.height) // 2)
-    canvas.paste(im, offset, im)
-    return canvas
+R_PADDING_RATIO = 0.62  # マスター内でRが占める高さの割合
+
+
+def sky_background(size):
+    bg = Image.new("RGB", (size, size))
+    draw = ImageDraw.Draw(bg)
+    for y in range(size):
+        t = y / (size - 1)
+        color = tuple(
+            int(SKY_TOP[i] + (SKY_BOTTOM[i] - SKY_TOP[i]) * t) for i in range(3)
+        )
+        draw.line([(0, y), (size, y)], fill=color)
+    return bg
+
+
+def white_r_mark():
+    with Image.open(LOGO) as logo:
+        r_mark = logo.crop(CROP_BOX)
+    alpha = r_mark.getchannel("A")
+    white = Image.new("RGBA", r_mark.size, (255, 255, 255, 255))
+    white.putalpha(alpha)
+    return white
 
 
 def main():
-    with Image.open(LOGO) as logo:
-        r_mark = logo.crop(CROP_BOX)
-        r_mark = square_canvas(r_mark)
+    bg = sky_background(MASTER_SIZE).convert("RGBA")
+    r_mark = white_r_mark()
+
+    target_h = int(MASTER_SIZE * R_PADDING_RATIO)
+    scale = target_h / r_mark.height
+    target_w = int(r_mark.width * scale)
+    r_mark = r_mark.resize((target_w, target_h), Image.LANCZOS)
+
+    offset = ((MASTER_SIZE - target_w) // 2, (MASTER_SIZE - target_h) // 2)
+    bg.alpha_composite(r_mark, offset)
+    master = bg.convert("RGB")
 
     sizes = [16, 32, 48, 180]
-    resized = {size: r_mark.resize((size, size), Image.LANCZOS) for size in sizes}
+    resized = {size: master.resize((size, size), Image.LANCZOS) for size in sizes}
 
     resized[32].save(IMAGES / "favicon-32.png")
     resized[16].save(IMAGES / "favicon-16.png")
