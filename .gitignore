@@ -1,4 +1,7 @@
 public/config.js
+public/posts/
+public/sitemap.xml
+public/feed.xml
 .env
 .DS_Store
 wordpress-theme/
