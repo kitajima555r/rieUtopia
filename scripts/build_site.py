@@ -27,6 +27,15 @@ SITE_URL = "https://rie-utopia.com"
 CATEGORY_LABELS = {"poem": "詩", "diary": "日記", "life": "生きる"}
 CATEGORY_ALIASES = {"詩": "poem", "日記": "diary", "生きる": "life"}
 
+GTAG_SNIPPET = """<!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0W215WX6JL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0W215WX6JL');
+  </script>"""
+
 
 def normalize_category(category):
     raw = category[0] if isinstance(category, list) else category
@@ -140,6 +149,7 @@ NAV_HEAD = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {gtag}
   <meta name="description" content="{description}">
   <title>{title} | Rie-Utopia</title>
   <link rel="canonical" href="{canonical}">
@@ -275,6 +285,7 @@ def render_post_page(post, prev_post, next_post):
         site_url=SITE_URL,
         og_image=og_image,
         json_ld=json_ld,
+        gtag=GTAG_SNIPPET,
     )
 
     content = f"""{thumb_html}
