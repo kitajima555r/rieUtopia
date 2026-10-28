@@ -6,6 +6,8 @@ export const site = {
   name: "Rie-Utopia",
   url: "https://rie-utopia.com",
   penName: "空色りえ",
+  /** ロゴ・faviconを差し替えたら +1。ブラウザの古いキャッシュを確実に更新させる */
+  assetVersion: 2,
   role: "詩人 / エッセイスト",
   description:
     "青空の下で綴る詩のポートフォリオ。双極性障害とともに生きながら、空の色を言葉にする詩人 空色りえ（rie-Utopia）の作品集。",

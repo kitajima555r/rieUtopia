@@ -21,7 +21,7 @@ const { instagram, x, note } = site.links;
 >
   <!-- Hero -->
   <section class="hero">
-    <img class="wordmark" src="/images/rie-utopia-logo.png" alt={site.name} width="900" height="268" />
+    <img class="wordmark" src={`/images/rie-utopia-logo.png?v=${site.assetVersion}`} alt={site.name} width="900" height="268" />
     <h1 class="tagline">
       {site.tagline.map((line) => <span>{line}</span>)}
     </h1>

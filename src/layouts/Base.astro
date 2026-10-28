@@ -25,6 +25,7 @@ const {
 
 const canonical = absoluteUrl(path);
 const ogImage = absoluteUrl(image);
+const v = `?v=${site.assetVersion}`;
 const fullTitle = path === "/" ? title : `${title} | ${site.name}`;
 ---
 
@@ -45,10 +46,10 @@ const fullTitle = path === "/" ? title : `${title} | ${site.name}`;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" type="application/rss+xml" title={site.name} href="/feed.xml" />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png" />
-    <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
+    <link rel="icon" href={`/favicon.ico${v}`} sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href={`/images/favicon-32.png${v}`} />
+    <link rel="icon" type="image/png" sizes="16x16" href={`/images/favicon-16.png${v}`} />
+    <link rel="apple-touch-icon" href={`/images/apple-touch-icon.png${v}`} />
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={fullTitle} />
@@ -98,7 +99,7 @@ const fullTitle = path === "/" ? title : `${title} | ${site.name}`;
     <footer class="footer glass">
       <div class="footer-inner">
         <a href="/" aria-label={`${site.name} トップへ`}>
-          <img src="/images/rie-utopia-logo.png" alt="" />
+          <img src={`/images/rie-utopia-logo.png${v}`} alt="" />
         </a>
         <nav class="footer-nav" aria-label="フッターメニュー">
           <a href="/poems">詩を読む</a>
