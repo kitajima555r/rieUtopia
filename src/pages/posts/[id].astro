@@ -1,0 +1,104 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getPosts, description, stanzas, absoluteUrl, type Post } from "../../lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => {
+    const sameCategory = posts.filter((p) => p.category === post.category);
+    const idx = sameCategory.findIndex((p) => p.id === post.id);
+    return {
+      params: { id: post.id },
+      props: {
+        post,
+        newer: sameCategory[idx - 1] as Post | undefined,
+        older: sameCategory[idx + 1] as Post | undefined,
+      },
+    };
+  });
+}
+
+const { post, newer, older } = Astro.props as { post: Post; newer?: Post; older?: Post };
+const path = `/posts/${post.id}.html`;
+const desc = description(post);
+const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(absoluteUrl(path))}&text=${encodeURIComponent(post.title)}`;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  genre: post.categoryLabel,
+  name: post.title,
+  datePublished: post.date,
+  image: post.image ? absoluteUrl(post.image) : undefined,
+  text: post.lines.join("\n"),
+  url: absoluteUrl(path),
+  author: { "@type": "Person", name: "rie-Utopia" },
+};
+---
+
+<Base
+  title={post.title}
+  description={desc}
+  path={path}
+  image={post.image || undefined}
+  type="article"
+  jsonLd={jsonLd}
+  current="poems"
+>
+  <article>
+    <header class="poem poem-head">
+      <div class="poem-meta">
+        <time datetime={post.date}>{post.date}</time>
+        <a class="tag" href={`/poems?c=${post.category}`}>{post.categoryLabel}</a>
+      </div>
+      <h1>{post.title}</h1>
+    </header>
+
+    {post.image && (
+      <div class="poem-cover">
+        <img src={post.image} alt={post.title} width="1200" height="750" />
+      </div>
+    )}
+
+    <div class="poem">
+      <div class="poem-body">
+        {stanzas(post).map((lines) => (
+          <p>
+            {lines.map((line, i) => (
+              <>
+                {i > 0 && <br />}
+                {line}
+              </>
+            ))}
+          </p>
+        ))}
+      </div>
+
+      <div class="poem-actions">
+        <a class="btn btn-outline" href={shareUrl} target="_blank" rel="noopener noreferrer">Xで共有</a>
+        <a class="btn btn-outline" href="/poems">一覧へ戻る</a>
+      </div>
+
+      {(older || newer) && (
+        <nav class="poem-nav" aria-label="前後の作品">
+          <div>
+            {older && (
+              <a href={`/posts/${older.id}.html`}>
+                <small>← PREVIOUS</small>
+                {older.title}
+              </a>
+            )}
+          </div>
+          <div class="next">
+            {newer && (
+              <a href={`/posts/${newer.id}.html`}>
+                <small>NEXT →</small>
+                {newer.title}
+              </a>
+            )}
+          </div>
+        </nav>
+      )}
+    </div>
+  </article>
+</Base>

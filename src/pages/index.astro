@@ -1,0 +1,110 @@
+---
+import Base from "../layouts/Base.astro";
+import PostCard from "../components/PostCard.astro";
+import { getPosts, preview } from "../lib/posts";
+
+const posts = await getPosts();
+const poems = posts.filter((p) => p.category === "poem");
+const latest = poems[0];
+const recent = poems.slice(0, 6);
+const quoteSource = posts.find((p) => p.title.includes("よくここまでがんばったね"));
+---
+
+<Base
+  title="Rie-Utopia | 詩人 rie-Utopia の詩を読む場所"
+  description="青空の下で綴る詩のポートフォリオ。双極性障害とともに生きながら、空の色を言葉にする詩人 rie-Utopia の作品集。"
+  path="/"
+>
+  <section class="hero">
+    <div class="container">
+      <div>
+        <p class="hero-eyebrow">Poetry by rie-Utopia</p>
+        <h1>空の色を<br />言葉にする<br />生きた証を<br />書きとめていく</h1>
+        <p class="hero-lead">
+          詩人 rie-Utopia の詩を読む場所です。<br />
+          幼少のころから書き続けてきた短い言葉を、ひとつずつ置いています。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/poems">詩を読む</a>
+          <a class="btn btn-outline" href="#about">詩人について</a>
+        </div>
+        <p class="hero-stats">
+          <strong>{poems.length}</strong> 編の詩 ・ <strong>{posts.length}</strong> 作品
+        </p>
+      </div>
+
+      {latest && (
+        <a class="hero-card" href={`/posts/${latest.id}.html`}>
+          {latest.image && <img src={latest.image} alt="" width="800" height="600" />}
+          <span class="hero-card-label">Latest</span>
+          <h2>{latest.title}</h2>
+          <p>{preview(latest, 3)}</p>
+        </a>
+      )}
+    </div>
+  </section>
+
+  <section class="section" id="new">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">New Poems</span>
+          <h2>新着の詩</h2>
+        </div>
+        <a class="more-link" href="/poems">すべての詩を見る →</a>
+      </div>
+      <div class="card-grid">
+        {recent.map((post) => <PostCard post={post} />)}
+      </div>
+    </div>
+  </section>
+
+  {quoteSource && (
+    <section class="section quote">
+      <div class="container">
+        <blockquote>ここまで<br />よくがんばったね。</blockquote>
+        <cite>— <a href={`/posts/${quoteSource.id}.html`}>{quoteSource.title}</a> より</cite>
+      </div>
+    </section>
+  )}
+
+  <section class="section" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image">
+          <img src="/images/about-profile.jpg" alt="雲の浮かぶ青空" width="800" height="600" loading="lazy" />
+        </div>
+        <div class="about-text">
+          <span class="kicker">About</span>
+          <p class="about-role">詩人 / 言葉を綴る人</p>
+          <p>
+            幼少のころから詩を書くのが趣味。<br />
+            空の色、日々の気配、生きることの重さとやわらかさを、短い行の詩にしています。
+          </p>
+          <p class="about-note">
+            元統合失調症。寛解して結婚、出産。<br />
+            現在は双極性障害Ⅱ型とともに、言葉を書き続けています。
+          </p>
+          <div class="link-list">
+            <a class="link-pill" href="https://www.instagram.com/rieutopia/" target="_blank" rel="noopener noreferrer">Instagram @rieutopia</a>
+            <a class="link-pill" href="https://twitter.com/rieUtopia" target="_blank" rel="noopener noreferrer">X @rieUtopia</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="journal">
+    <div class="container">
+      <div class="panel">
+        <span class="kicker">Journal</span>
+        <h2>日記・記録</h2>
+        <p>
+          詩だけでなく、双極性障害とともに生きる日々の記録も綴っています。
+          鬱期も躁期も、すべてが自分の言葉として残っていく場所。
+        </p>
+        <a class="btn btn-primary" href="/poems?c=diary">日記を読む</a>
+      </div>
+    </div>
+  </section>
+</Base>

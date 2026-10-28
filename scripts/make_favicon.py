@@ -1,52 +1,63 @@
 #!/usr/bin/env python3
 """
-sky-bg.png（トップのヒーロー画像と同じ空の写真）を背景に、
-白抜きの"R"を乗せたfaviconを生成する。
+ロゴ原本(design/logo-source.png)から「R」と星のきらめきを切り出し、
+青グラデーション(#3366ff→#0080ff)の上に白抜きで乗せたfavicon一式を生成する。
 
 使い方: python3 scripts/make_favicon.py
 """
 
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageEnhance
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 IMAGES = ROOT / "public" / "images"
-SKY_PHOTO = IMAGES / "sky-bg.png"
-LOGO = IMAGES / "rie-utopia-logo.png"
+LOGO_SOURCE = ROOT / "design" / "logo-source.png"
+
+# 原本(2171x724)上で "R" と星だけを残す範囲（"i" の縦線や後続の文字を除く）
+KEEP_BOXES = [(20, 100, 400, 520), (375, 100, 570, 285)]
+CROP_BOX = (20, 100, 570, 520)
 
 MASTER_SIZE = 1024
-# sky-bg.png(768x1024)から正方形として切り出す範囲
-SKY_CROP_BOX = (0, 250, 768, 1018)
-# ロゴ画像の左端、"R" の字だけを含む範囲（実測で調整済み）
-LOGO_R_CROP_BOX = (0, 0, 195, 271)
 CORNER_RADIUS_RATIO = 0.22
-LETTER_HEIGHT_RATIO = 0.62
-SATURATION_FACTOR = 3.0
+MARK_RATIO = 0.64
+GRADIENT_START = (51, 102, 255)  # #3366ff
+GRADIENT_END = (0, 128, 255)  # #0080ff
 
 
-def white_r_mark():
-    with Image.open(LOGO) as logo:
-        r_mark = logo.crop(LOGO_R_CROP_BOX)
-    alpha = r_mark.getchannel("A")
-    white = Image.new("RGBA", r_mark.size, (255, 255, 255, 255))
-    white.putalpha(alpha)
-    return white
+def white_mark():
+    src = Image.open(LOGO_SOURCE).convert("RGBA")
+    alpha = src.getchannel("A")
+    keep = Image.new("L", src.size, 0)
+    draw = ImageDraw.Draw(keep)
+    for box in KEEP_BOXES:
+        draw.rectangle(box, fill=255)
+    masked = Image.composite(alpha, Image.new("L", src.size, 0), keep)
+    mark = Image.new("RGBA", src.size, (255, 255, 255, 255))
+    mark.putalpha(masked)
+    mark = mark.crop(CROP_BOX)
+    return mark.crop(mark.getchannel("A").getbbox())
+
+
+def gradient(size):
+    bg = Image.new("RGB", (size, size))
+    px = bg.load()
+    for y in range(size):
+        for x in range(size):
+            t = (x + y) / (2 * (size - 1))
+            px[x, y] = tuple(
+                round(GRADIENT_START[i] + (GRADIENT_END[i] - GRADIENT_START[i]) * t)
+                for i in range(3)
+            )
+    return bg.convert("RGBA")
 
 
 def build_base(size):
-    sky = Image.open(SKY_PHOTO).convert("RGB")
-    crop = sky.crop(SKY_CROP_BOX).resize((size, size), Image.LANCZOS)
-    crop = ImageEnhance.Color(crop).enhance(SATURATION_FACTOR).convert("RGBA")
-
-    r_mark = white_r_mark()
-    target_h = int(size * LETTER_HEIGHT_RATIO)
-    scale = target_h / r_mark.height
-    target_w = int(r_mark.width * scale)
-    r_mark = r_mark.resize((target_w, target_h), Image.LANCZOS)
-
-    offset = ((size - target_w) // 2, (size - target_h) // 2)
-    crop.alpha_composite(r_mark, offset)
-    return crop
+    base = gradient(size)
+    mark = white_mark()
+    scale = MARK_RATIO * size / max(mark.size)
+    mark = mark.resize((round(mark.width * scale), round(mark.height * scale)), Image.LANCZOS)
+    base.alpha_composite(mark, ((size - mark.width) // 2, (size - mark.height) // 2))
+    return base
 
 
 def rounded(im, radius_ratio):
@@ -65,18 +76,14 @@ def main():
     rounded_icon = rounded(base, CORNER_RADIUS_RATIO)
 
     for size in (16, 32):
-        rounded_icon.resize((size, size), Image.LANCZOS).save(
-            IMAGES / f"favicon-{size}.png"
-        )
+        rounded_icon.resize((size, size), Image.LANCZOS).save(IMAGES / f"favicon-{size}.png")
 
-    ico_path = ROOT / "public" / "favicon.ico"
     rounded_icon.resize((48, 48), Image.LANCZOS).save(
-        ico_path, format="ICO", sizes=[(16, 16), (32, 32), (48, 48)]
+        ROOT / "public" / "favicon.ico", format="ICO", sizes=[(16, 16), (32, 32), (48, 48)]
     )
 
-    # apple-touch-icon: iOS側が角丸・影を付けるのでフチなし正方形・不透明で渡す
-    apple_icon = base.resize((180, 180), Image.LANCZOS).convert("RGB")
-    apple_icon.save(IMAGES / "apple-touch-icon.png")
+    # apple-touch-icon: iOS側が角丸を付けるのでフチなし正方形・不透明で渡す
+    base.resize((180, 180), Image.LANCZOS).convert("RGB").save(IMAGES / "apple-touch-icon.png")
 
     print("生成: favicon.ico, favicon-16/32.png, apple-touch-icon.png")
 

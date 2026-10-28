@@ -1,59 +1,24 @@
 # デプロイ手順 — GitHub Pages + microCMS
 
-## すでに完了していること
+`main` に push すると GitHub Actions（`.github/workflows/deploy.yml`）が `npm run build` を実行し、`dist/` を `gh-pages` ブランチへ公開します。毎時0分（UTC）にも自動でビルドされ、microCMS の更新が反映されます。
 
-- コードは https://github.com/kitajima555r/rieUtopia に push 済み
-- `main` に push すると GitHub Actions が `gh-pages` ブランチへ自動デプロイ
-- microCMS 未設定でも `posts.json` の詩が表示される
+## 初回設定
 
-## あなたがやること（2分）
+1. GitHub の Settings → Pages で Source を **Deploy from a branch**、Branch を **gh-pages / (root)** に設定
+2. Settings → Secrets and variables → Actions に登録:
 
-### 1. GitHub Pages を有効化
+   | Name | Value |
+   |---|---|
+   | `MICROCMS_SERVICE_DOMAIN` | サービス ID（`xxx.microcms.io` の `xxx`） |
+   | `MICROCMS_API_KEY` | **読み取り専用**（GET のみ）の API キー |
 
-1. https://github.com/kitajima555r/rieUtopia/settings/pages を開く
-2. **Build and deployment** → Source: **Deploy from a branch**
-3. Branch: **gh-pages** / **/ (root)** を選んで Save
+3. 独自ドメイン: Settings → Pages → Custom domain に `rie-utopia.com`、**Enforce HTTPS** を ON
 
-数分後、サイトが公開されます:
+## 反映を早めたいとき
 
-**https://kitajima555r.github.io/rieUtopia/**
+Actions タブ → 「Deploy to GitHub Pages」 → **Run workflow**。
 
-### 2. microCMS を使う場合（任意・後から OK）
+## 補足
 
-[MICROCMS.md](MICROCMS.md) の手順で API を作成したあと:
-
-```bash
-# 書き込み用 API キーで既存データを一括登録
-MICROCMS_SERVICE_DOMAIN=あなたのサービスID \
-MICROCMS_API_KEY=書き込み用キー \
-node scripts/migrate-to-microcms.mjs
-```
-
-GitHub → Settings → Secrets → Actions に登録:
-
-| Name | Value |
-|---|---|
-| `MICROCMS_SERVICE_DOMAIN` | サービス ID |
-| `MICROCMS_API_KEY` | 読み取り専用 API キー |
-
-登録後、`main` に空コミットを push すると microCMS 連携が有効になります。
-
-### 3. 独自ドメイン（rie-utopia.com）
-
-Settings → Pages → Custom domain に `rie-utopia.com` を入力し、DNS を GitHub の案内に従って設定。
-
-## ローカル確認
-
-```bash
-./scripts/preview.sh
-```
-
-http://localhost:8080
-
-## 更新の流れ
-
-| やりたいこと | 方法 |
-|---|---|
-| 詩を追加・編集（microCMS 利用時） | microCMS 管理画面 |
-| 詩を追加・編集（今すぐ） | `public/posts.json` を編集して push |
-| デザイン変更 | `public/` 内のファイルを編集して push |
+- 未設定でも `src/data/posts.fallback.json` の詩でビルドできます。
+- リポジトリに長期間コミットが無いと GitHub が定期実行を止めることがあります。その場合は Run workflow で再開してください。

@@ -1,0 +1,78 @@
+---
+import Base from "../layouts/Base.astro";
+import PostCard from "../components/PostCard.astro";
+import { getPosts, CATEGORY_LABELS, type Category } from "../lib/posts";
+
+const posts = await getPosts();
+const count = (c: Category) => posts.filter((p) => p.category === c).length;
+const tabs: { key: string; label: string; n: number }[] = [
+  { key: "poem", label: CATEGORY_LABELS.poem, n: count("poem") },
+  { key: "diary", label: CATEGORY_LABELS.diary, n: count("diary") },
+  { key: "life", label: CATEGORY_LABELS.life, n: count("life") },
+  { key: "all", label: "すべて", n: posts.length },
+];
+---
+
+<Base
+  title="詩を読む"
+  description="rie-Utopia の詩・日記・生きるの作品一覧。タイトルと本文から検索できます。"
+  path="/poems"
+  current="poems"
+>
+  <div class="container page-head">
+    <span class="kicker">Poems</span>
+    <h1>詩を読む</h1>
+    <p>気になる作品を選んで、ゆっくり読んでください。</p>
+  </div>
+
+  <div class="container">
+    <div class="toolbar">
+      <div class="tabs" role="group" aria-label="カテゴリ">
+        {tabs.map((t) => (
+          <button class="tab" type="button" data-filter={t.key} aria-pressed={t.key === "poem" ? "true" : "false"}>
+            {t.label}<span>{t.n}</span>
+          </button>
+        ))}
+      </div>
+      <input class="search" id="search" type="search" placeholder="タイトル・本文で検索" aria-label="詩を検索" />
+    </div>
+
+    <div class="card-grid" id="grid">
+      {posts.map((post) => <PostCard post={post} />)}
+      <p class="empty" id="empty" hidden>一致する作品が見つかりませんでした。</p>
+    </div>
+  </div>
+</Base>
+
+<script>
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>(".tab")];
+  const cards = [...document.querySelectorAll<HTMLElement>("#grid .card")];
+  const search = document.getElementById("search") as HTMLInputElement;
+  const empty = document.getElementById("empty") as HTMLElement;
+
+  const params = new URLSearchParams(location.search);
+  let filter = tabs.some((t) => t.dataset.filter === params.get("c")) ? params.get("c")! : "poem";
+
+  function render() {
+    const query = search.value.trim().toLowerCase();
+    let visible = 0;
+    for (const card of cards) {
+      const match =
+        (filter === "all" || card.dataset.category === filter) &&
+        (!query || (card.dataset.text ?? "").includes(query));
+      card.hidden = !match;
+      if (match) visible++;
+    }
+    empty.hidden = visible > 0;
+    for (const tab of tabs) tab.setAttribute("aria-pressed", String(tab.dataset.filter === filter));
+  }
+
+  for (const tab of tabs) {
+    tab.addEventListener("click", () => {
+      filter = tab.dataset.filter!;
+      render();
+    });
+  }
+  search.addEventListener("input", render);
+  render();
+</script>
