@@ -1,7 +1,7 @@
 ---
 import "../styles/global.css";
 import { absoluteUrl } from "../lib/posts";
-import { NOTE_URL } from "../lib/note";
+import { site, nav } from "../data/site";
 
 interface Props {
   title: string;
@@ -25,7 +25,7 @@ const {
 
 const canonical = absoluteUrl(path);
 const ogImage = absoluteUrl(image);
-const fullTitle = path === "/" ? title : `${title} | Rie-Utopia`;
+const fullTitle = path === "/" ? title : `${title} | ${site.name}`;
 ---
 
 <!doctype html>
@@ -44,13 +44,13 @@ const fullTitle = path === "/" ? title : `${title} | Rie-Utopia`;
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" type="application/rss+xml" title="Rie-Utopia" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title={site.name} href="/feed.xml" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png" />
     <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
     <meta property="og:type" content={type} />
-    <meta property="og:site_name" content="Rie-Utopia" />
+    <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -65,37 +65,50 @@ const fullTitle = path === "/" ? title : `${title} | Rie-Utopia`;
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
   <body>
-    <header class="site-header">
-      <div class="container">
-        <a href="/" class="logo" aria-label="Rie-Utopia トップへ">
-          <img src="/images/rie-utopia-logo.png" alt="Rie-Utopia" />
-        </a>
-        <nav class="nav" aria-label="メインメニュー">
-          <a href="/poems" aria-current={current === "poems" ? "page" : undefined}>詩を読む</a>
-          <a href="/#about" aria-current={current === "about" ? "page" : undefined}>About</a>
-          <a href="https://www.instagram.com/rieutopia/" target="_blank" rel="noopener noreferrer">Instagram</a>
-        </nav>
-      </div>
+    <div class="aurora" aria-hidden="true">
+      <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
+    </div>
+
+    <header>
+      <nav class="pill" aria-label="メインメニュー">
+        {nav.map((item) => (
+          <a
+            href={item.href}
+            class={"primary" in item && item.primary ? "primary" : undefined}
+            aria-current={
+              (item.label === "詩を読む" && current === "poems") ||
+              (item.label === "About" && current === "about")
+                ? "page"
+                : undefined
+            }
+            {...("external" in item && item.external
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
     </header>
 
     <main>
       <slot />
     </main>
 
-    <footer class="site-footer">
-      <div class="container">
-        <a href="/" class="logo" aria-label="Rie-Utopia トップへ">
+    <footer class="footer glass">
+      <div class="footer-inner">
+        <a href="/" aria-label={`${site.name} トップへ`}>
           <img src="/images/rie-utopia-logo.png" alt="" />
         </a>
         <nav class="footer-nav" aria-label="フッターメニュー">
           <a href="/poems">詩を読む</a>
           <a href="/#about">About</a>
-          <a href="https://www.instagram.com/rieutopia/" target="_blank" rel="noopener noreferrer">Instagram</a>
-          <a href="https://x.com/rieutopia" target="_blank" rel="noopener noreferrer">X</a>
-          <a href={NOTE_URL} target="_blank" rel="noopener noreferrer">note</a>
+          <a href={site.links.instagram.url} target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href={site.links.x.url} target="_blank" rel="noopener noreferrer">X</a>
+          <a href={site.links.note.url} target="_blank" rel="noopener noreferrer">note</a>
           <a href="/feed.xml">RSS</a>
         </nav>
-        <p class="copyright">&copy; RIE-Utopia</p>
+        <p class="copyright">&copy; {site.name}</p>
       </div>
     </footer>
   </body>

@@ -10,13 +10,13 @@ const text = `${post.title}\n${post.lines.join("\n")}`.toLowerCase();
 ---
 
 <a
-  class="card"
+  class="card glass"
   href={`/posts/${post.id}.html`}
   data-category={post.category}
   data-text={text}
 >
   <div class="card-thumb">
-    {post.image && <img src={post.image} alt="" width="800" height="500" loading="lazy" />}
+    {post.image && <img src={post.image} alt="" width="800" height="600" loading="lazy" />}
   </div>
   <div class="card-body">
     <div class="card-meta">
@@ -24,6 +24,6 @@ const text = `${post.title}\n${post.lines.join("\n")}`.toLowerCase();
       <span class="tag">{post.categoryLabel}</span>
     </div>
     <h3>{post.title}</h3>
-    <p class="card-preview">{preview(post)}</p>
+    <p class="card-line">{preview(post)}</p>
   </div>
 </a>

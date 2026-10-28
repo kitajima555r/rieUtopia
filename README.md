@@ -29,11 +29,13 @@ src/
 │   ├── posts/[id].astro   詩の個別ページ（/posts/{id}.html）
 │   ├── feed.xml.ts        RSS
 │   └── sitemap.xml.ts     sitemap
-├── layouts/Base.astro     head（GA4・OGP・favicon）・ヘッダー・フッター
+├── layouts/Base.astro     head（GA4・OGP・favicon）・ナビ・フッター
 ├── components/PostCard.astro
 ├── lib/posts.ts           データ取得（microCMS 優先 + posts.fallback.json）
+├── lib/note.ts            note の最新記事（RSS）
+├── data/site.ts           ★ キャッチコピー・About・SNSリンクなどの文言
 ├── data/posts.fallback.json
-└── styles/global.css      デザイン（白基調・#3366ff / #0080ff）
+└── styles/global.css      デザイン（白基調+すりガラス・#3366ff / #0080ff）
 public/                    favicon・画像・robots.txt
 design/logo-source.png     ロゴ原本（favicon生成用。公開されません）
 scripts/                   画像最適化・favicon生成（Python）
@@ -42,7 +44,8 @@ scripts/                   画像最適化・favicon生成（Python）
 ## 更新の流れ
 
 - 詩の追加・編集は **microCMS の管理画面**から。**最大1時間以内**にサイトへ反映されます（毎時ビルド）。すぐに反映したいときは GitHub の Actions タブから「Deploy to GitHub Pages」を **Run workflow**。
-- デザイン変更は `src/` を編集して `main` に push（自動デプロイ）。
+- キャッチコピー・Aboutの文章・SNSのリンクは `src/data/site.ts` を編集して `main` に push（自動デプロイ）。
+- デザイン変更は `src/styles/global.css` の変数（色・角丸・余白）から。
 - microCMS の API キーはビルド時のみ使われ、ブラウザには配信されません。
 
 ## デプロイ

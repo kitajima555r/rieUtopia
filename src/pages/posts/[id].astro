@@ -45,9 +45,9 @@ const jsonLd = {
   jsonLd={jsonLd}
   current="poems"
 >
-  <article>
-    <header class="poem poem-head">
-      <div class="poem-meta">
+  <article class="glass reader">
+    <header class="reader-head">
+      <div class="reader-meta">
         <time datetime={post.date}>{post.date}</time>
         <a class="tag" href={`/poems?c=${post.category}`}>{post.categoryLabel}</a>
       </div>
@@ -55,50 +55,48 @@ const jsonLd = {
     </header>
 
     {post.image && (
-      <div class="poem-cover">
+      <div class="reader-cover">
         <img src={post.image} alt={post.title} width="1200" height="750" />
       </div>
     )}
 
-    <div class="poem">
-      <div class="poem-body">
-        {stanzas(post).map((lines) => (
-          <p>
-            {lines.map((line, i) => (
-              <>
-                {i > 0 && <br />}
-                {line}
-              </>
-            ))}
-          </p>
-        ))}
-      </div>
-
-      <div class="poem-actions">
-        <a class="btn btn-outline" href={shareUrl} target="_blank" rel="noopener noreferrer">Xで共有</a>
-        <a class="btn btn-outline" href="/poems">一覧へ戻る</a>
-      </div>
-
-      {(older || newer) && (
-        <nav class="poem-nav" aria-label="前後の作品">
-          <div>
-            {older && (
-              <a href={`/posts/${older.id}.html`}>
-                <small>← PREVIOUS</small>
-                {older.title}
-              </a>
-            )}
-          </div>
-          <div class="next">
-            {newer && (
-              <a href={`/posts/${newer.id}.html`}>
-                <small>NEXT →</small>
-                {newer.title}
-              </a>
-            )}
-          </div>
-        </nav>
-      )}
+    <div class="reader-body">
+      {stanzas(post).map((lines) => (
+        <p>
+          {lines.map((line, i) => (
+            <>
+              {i > 0 && <br />}
+              {line}
+            </>
+          ))}
+        </p>
+      ))}
     </div>
+
+    <div class="reader-actions">
+      <a class="btn" href={shareUrl} target="_blank" rel="noopener noreferrer">Xで共有</a>
+      <a class="btn" href="/poems">一覧へ戻る</a>
+    </div>
+
+    {(older || newer) && (
+      <nav class="reader-nav" aria-label="前後の作品">
+        <div>
+          {older && (
+            <a href={`/posts/${older.id}.html`}>
+              <small>← PREVIOUS</small>
+              {older.title}
+            </a>
+          )}
+        </div>
+        <div class="next">
+          {newer && (
+            <a href={`/posts/${newer.id}.html`}>
+              <small>NEXT →</small>
+              {newer.title}
+            </a>
+          )}
+        </div>
+      </nav>
+    )}
   </article>
 </Base>

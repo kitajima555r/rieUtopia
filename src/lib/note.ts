@@ -1,4 +1,6 @@
-export const NOTE_URL = "https://note.com/riesorairo_";
+import { site } from "../data/site";
+
+export const NOTE_URL = site.links.note.url;
 
 export interface NoteArticle {
   title: string;

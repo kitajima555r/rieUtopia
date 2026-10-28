@@ -2,10 +2,11 @@
 import Base from "../layouts/Base.astro";
 import PostCard from "../components/PostCard.astro";
 import { getPosts, CATEGORY_LABELS, type Category } from "../lib/posts";
+import { site } from "../data/site";
 
 const posts = await getPosts();
 const count = (c: Category) => posts.filter((p) => p.category === c).length;
-const tabs: { key: string; label: string; n: number }[] = [
+const tabs = [
   { key: "poem", label: CATEGORY_LABELS.poem, n: count("poem") },
   { key: "diary", label: CATEGORY_LABELS.diary, n: count("diary") },
   { key: "life", label: CATEGORY_LABELS.life, n: count("life") },
@@ -15,29 +16,29 @@ const tabs: { key: string; label: string; n: number }[] = [
 
 <Base
   title="詩を読む"
-  description="rie-Utopia の詩・日記・生きるの作品一覧。タイトルと本文から検索できます。"
+  description={`${site.penName}（${site.name}）の詩・日記・生きるの作品一覧。タイトルと本文から検索できます。`}
   path="/poems"
   current="poems"
 >
-  <div class="container page-head">
-    <span class="kicker">Poems</span>
+  <div class="wrap page-head">
+    <span class="eyebrow">Poems</span>
     <h1>詩を読む</h1>
     <p>気になる作品を選んで、ゆっくり読んでください。</p>
   </div>
 
-  <div class="container">
+  <div class="wrap">
     <div class="toolbar">
-      <div class="tabs" role="group" aria-label="カテゴリ">
+      <div class="tabs glass" role="group" aria-label="カテゴリ">
         {tabs.map((t) => (
           <button class="tab" type="button" data-filter={t.key} aria-pressed={t.key === "poem" ? "true" : "false"}>
-            {t.label}<span>{t.n}</span>
+            {t.label}<sup>{t.n}</sup>
           </button>
         ))}
       </div>
       <input class="search" id="search" type="search" placeholder="タイトル・本文で検索" aria-label="詩を検索" />
     </div>
 
-    <div class="card-grid" id="grid">
+    <div class="grid" id="grid">
       {posts.map((post) => <PostCard post={post} />)}
       <p class="empty" id="empty" hidden>一致する作品が見つかりませんでした。</p>
     </div>
