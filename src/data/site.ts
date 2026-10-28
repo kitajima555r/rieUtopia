@@ -30,7 +30,7 @@ export const site = {
 
   links: {
     instagram: { label: "Instagram", handle: "@rieutopia", url: "https://www.instagram.com/rieutopia/" },
-    x: { label: "X", handle: "@rieutopia", url: "https://x.com/rieutopia" },
+    x: { label: "X", handle: "@rieUtopia", url: "https://x.com/rieutopia" },
     note: { label: "note", handle: "空色りえ", url: "https://note.com/riesorairo_" },
   },
 } as const;
