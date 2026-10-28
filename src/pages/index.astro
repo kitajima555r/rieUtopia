@@ -2,11 +2,13 @@
 import Base from "../layouts/Base.astro";
 import PostCard from "../components/PostCard.astro";
 import { getPosts, preview } from "../lib/posts";
+import { getNoteArticles, NOTE_URL } from "../lib/note";
 
 const posts = await getPosts();
 const poems = posts.filter((p) => p.category === "poem");
 const latest = poems[0];
 const recent = poems.slice(0, 6);
+const noteArticles = await getNoteArticles(3);
 const quoteSource = posts.find((p) => p.title.includes("よくここまでがんばったね"));
 ---
 
@@ -88,11 +90,42 @@ const quoteSource = posts.find((p) => p.title.includes("よくここまでがん
           <div class="link-list">
             <a class="link-pill" href="https://www.instagram.com/rieutopia/" target="_blank" rel="noopener noreferrer">Instagram @rieutopia</a>
             <a class="link-pill" href="https://x.com/rieutopia" target="_blank" rel="noopener noreferrer">X @rieutopia</a>
+            <a class="link-pill" href={NOTE_URL} target="_blank" rel="noopener noreferrer">note 空色りえ</a>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+  {noteArticles.length > 0 && (
+    <section class="section" id="note">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Essay</span>
+            <h2>noteの最新記事</h2>
+          </div>
+          <a class="more-link" href={NOTE_URL} target="_blank" rel="noopener noreferrer">note でもっと読む →</a>
+        </div>
+        <div class="card-grid">
+          {noteArticles.map((article) => (
+            <a class="card" href={article.url} target="_blank" rel="noopener noreferrer">
+              <div class="card-thumb">
+                {article.image && <img src={article.image} alt="" width="800" height="500" loading="lazy" />}
+              </div>
+              <div class="card-body">
+                <div class="card-meta">
+                  <time datetime={article.date}>{article.date}</time>
+                  <span class="tag">note</span>
+                </div>
+                <h3>{article.title}</h3>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 
   <section class="section" id="social">
     <div class="container">
