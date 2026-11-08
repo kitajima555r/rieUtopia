@@ -3,8 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  repository_dispatch:
+    # microCMS の Webhook から呼ばれる。保存・公開の数分後にサイトへ反映される（DEPLOY.md 参照）
+    types: [microcms-update]
   schedule:
-    # microCMS の更新を反映するため毎時ビルドする（UTC）
+    # Webhook の取りこぼし対策。GitHub の定期実行は遅れることが多く、数時間おきになる
     - cron: "0 * * * *"
   workflow_dispatch:
 

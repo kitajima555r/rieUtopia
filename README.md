@@ -43,7 +43,7 @@ scripts/                   画像最適化・favicon生成（Python）
 
 ## 更新の流れ
 
-- 詩の追加・編集は **microCMS の管理画面**から。**最大1時間以内**にサイトへ反映されます（毎時ビルド）。すぐに反映したいときは GitHub の Actions タブから「Deploy to GitHub Pages」を **Run workflow**。
+- 詩の追加・編集は **microCMS の管理画面**から。Webhook を設定すると保存・公開の**数分後**にサイトへ反映されます（[DEPLOY.md](DEPLOY.md)）。未設定のときは定期ビルド（数時間おき）を待つか、GitHub の Actions タブから「Deploy to GitHub Pages」を **Run workflow**。
 - キャッチコピー・Aboutの文章・SNSのリンクは `src/data/site.ts` を編集して `main` に push（自動デプロイ）。
 - デザイン変更は `src/styles/global.css` の変数（色・角丸・余白）から。
 - microCMS の API キーはビルド時のみ使われ、ブラウザには配信されません。
